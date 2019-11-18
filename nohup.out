@@ -1,0 +1,14 @@
+[I 12:31:39.794 NotebookApp] The port 8888 is already in use, trying another port.
+[I 12:31:39.794 NotebookApp] The port 8889 is already in use, trying another port.
+[I 12:31:39.799 NotebookApp] Serving notebooks from local directory: /home/x1/Documents/Python
+[I 12:31:39.799 NotebookApp] 0 active kernels
+[I 12:31:39.799 NotebookApp] The Jupyter Notebook is running at:
+[I 12:31:39.799 NotebookApp] http://localhost:8890/?token=f247e7ac224856e88e8758dd6bf4b647664351d4e2e7e5dc
+[I 12:31:39.799 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[C 12:31:39.800 NotebookApp] 
+    
+    Copy/paste this URL into your browser when you connect for the first time,
+    to login with a token:
+        http://localhost:8890/?token=f247e7ac224856e88e8758dd6bf4b647664351d4e2e7e5dc
+[I 12:31:40.128 NotebookApp] Accepting one-time-token-authenticated connection from ::1
+[W 12:31:40.714 NotebookApp] 404 GET /static/components/moment/locale/en-gb.js?v=20191117123139 (127.0.0.1) 11.52ms referer=http://localhost:8890/tree
