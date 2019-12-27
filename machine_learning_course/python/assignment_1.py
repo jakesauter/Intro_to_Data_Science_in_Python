@@ -46,7 +46,7 @@ def answer_zero():
 
 # You can examine what your function returns by calling it in the cell. If you have questions
 # about the assignment formats, check out the discussion forums for any FAQs
-answer_zero() 
+# answer_zero() 
 
 
 # ### Question 1
@@ -89,7 +89,7 @@ def answer_one():
     return df
 
 
-answer_one()
+# answer_one()
 
 
 # ### Question 2
@@ -105,6 +105,7 @@ def answer_two():
     df = answer_one()
     target = df.target.value_counts()
     index = target.index.to_list()
+    # index = target.index.tolist()
     index[index.index(0)] = 'malignant'
     index[index.index(1)] = 'benign'
     target.index = index
@@ -112,7 +113,7 @@ def answer_two():
     return target
 
 
-answer_two()
+# answer_two()
 
 
 # ### Question 3
@@ -127,6 +128,7 @@ answer_two()
 def answer_three():
     df = answer_one()
     cols = list(set(df.columns.to_list()).difference(set(['target'])))
+    # cols = list(set(df.columns.tolist()).difference(set(['target'])))
     
     X = df[cols]
     y = df['target']
@@ -134,7 +136,7 @@ def answer_three():
     return (X, y)
     
 
-answer_three()
+# answer_three()
 
 
 # ### Question 4
@@ -155,13 +157,14 @@ from sklearn.model_selection import train_test_split
 def answer_four():
     X, y = answer_three()
     
-    X_train, X_test, y_train, y_test = train_test_split(X, y)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
     
     return X_train, X_test, y_train, y_test
 
 
 # ### Question 5
-# Using KNeighborsClassifier, fit a k-nearest neighbors (knn) classifier with `X_train`, `y_train` and using one nearest neighbor (`n_neighbors = 1`).
+# Using KNeighborsClassifier, fit a k-nearest neighbors (knn) classifier with `X_train`, `y_train` 
+# and using one nearest neighbor (`n_neighbors = 1`).
 # 
 # *This function should return a * `sklearn.neighbors.classification.KNeighborsClassifier`.
 
@@ -172,7 +175,7 @@ from sklearn.neighbors import KNeighborsClassifier
 def answer_five():
     X_train, X_test, y_train, y_test = answer_four()
     
-    knn = KNeighborsClassifier(n_jobs=12)
+    knn = KNeighborsClassifier(n_neighbors=1, n_jobs=12)
     
     knn.fit(X_train, y_train)
     
@@ -195,6 +198,7 @@ def answer_six():
     means = df.mean()[:-1].values.reshape(1, -1)
     knn = answer_five()
     pred = cancer.target_names[knn.predict(means)]
+    # pred = knn.predict(means)
     return pred
 
 
@@ -236,7 +240,7 @@ def answer_eight():
 
 # In[ ]:
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 def accuracy_plot():
     import matplotlib.pyplot as plt
