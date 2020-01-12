@@ -36,9 +36,11 @@ import pandas as pd
 
 def answer_one():
     
-    # Your code here
+    df = pd.read_csv('python/fraud_data.csv')
+    counts = df.Class.value_counts()
+    ans = counts[1] / sum(counts)
     
-    return # Return your answer
+    return ans
 
 
 # In[ ]:
@@ -46,7 +48,7 @@ def answer_one():
 # Use X_train, X_test, y_train, y_test for all of the following questions
 from sklearn.model_selection import train_test_split
 
-df = pd.read_csv('readonly/fraud_data.csv')
+df = pd.read_csv('python/fraud_data.csv')
 
 X = df.iloc[:,:-1]
 y = df.iloc[:,-1]
@@ -56,27 +58,37 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
 
 # ### Question 2
 # 
-# Using `X_train`, `X_test`, `y_train`, and `y_test` (as defined above), train a dummy classifier 
+# Using `X_train`, `X_test`, `y_train`, and `y_test` (as defined above), 
+# train a dummy classifier 
 # that classifies everything as the majority class of the training data. 
 # What is the accuracy of this classifier? What is the recall?
 # 
-# *This function should a return a tuple with two floats, i.e. `(accuracy score, recall score)`.*
+# *This function should a return a tuple with two floats, i.e. 
+# `(accuracy score, recall score)`.*
 
 # In[ ]:
 
 def answer_two():
     from sklearn.dummy import DummyClassifier
-    from sklearn.metrics import recall_score
+    from sklearn.metrics import recall_score, accuracy_score
+
+    clf = DummyClassifier(strategy='most_frequent')
     
-    # Your code here
+    clf = clf.fit(X_train, y_train)
     
-    return # Return your answer
+    preds = clf.predict(X_test)
+    
+    acc = accuracy_score(y_test, preds)
+    recall = recall_score(y_test, preds)
+    
+    return (acc, recall)
 
 
 # ### Question 3
 # 
 # Using X_train, X_test, y_train, y_test (as defined above), train a SVC classifer 
-# using the default parameters. What is the accuracy, recall, and precision of this classifier?
+# using the default parameters. What is the accuracy, recall, and precision of 
+# this classifier?
 # 
 # *This function should a return a tuple with three floats, 
 # i.e. `(accuracy score, recall score, precision score)`.*
@@ -84,18 +96,28 @@ def answer_two():
 # In[ ]:
 
 def answer_three():
-    from sklearn.metrics import recall_score, precision_score
+    from sklearn.metrics import recall_score, precision_score, accuracy_score
     from sklearn.svm import SVC
 
-    # Your code here
+    clf = SVC()
     
-    return # Return your answer
+    clf.fit(X_train, y_train)
+    
+    preds = clf.predict(X_test)
+    
+    acc = accuracy_score(y_test, preds)
+    recall = recall_score(y_test, preds)
+    precision = precision_score(y_test, preds)
+    
+    return (acc, recall, precision)
 
 
 # ### Question 4
 # 
-# Using the SVC classifier with parameters `{'C': 1e9, 'gamma': 1e-07}`, what is the confusion 
-# matrix when using a threshold of -220 on the decision function. Use X_test and y_test.
+# Using the SVC classifier with parameters `{'C': 1e9, 'gamma': 1e-07}`, 
+# what is the confusion 
+# matrix when using a threshold of -220 on the decision function. 
+# Use X_test and y_test.
 # 
 # *This function should return a confusion matrix, a 2x2 numpy array with 4 integers.*
 
@@ -105,14 +127,20 @@ def answer_four():
     from sklearn.metrics import confusion_matrix
     from sklearn.svm import SVC
 
-    # Your code here
+    clf = SVC(C=1e9, gamma=1e-07)
+    clf.fit(X_train, y_train)
+    preds = clf.decision_function(X_test)
+    preds[preds > -220] = 1
+    preds[preds < -220] = 0
+    conf_mat = confusion_matrix(y_test, preds[:,1])
     
-    return # Return your answer
+    return conf_mat
 
 
 # ### Question 5
 # 
-# Train a logisitic regression classifier with default parameters using X_train and y_train.
+# Train a logisitic regression classifier with default parameters
+# using X_train and y_train.
 # 
 # For the logisitic regression classifier, create a precision recall curve and a roc 
 # curve using y_test and the probability estimates for X_test (probability it is fraud).
@@ -126,22 +154,65 @@ def answer_four():
 # In[ ]:
 
 def answer_five():
-        
-    # Your code here
+    import matplotlib.pyplot as plt
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.metrics import precision_recall_curve
+    from sklearn.metrics import roc_curve
     
-    return # Return your answer
+    clf = LogisticRegression()
+    clf.fit(X_train, y_train)
+    preds = clf.predict_proba(X_test)[:,1]
+    prec, rec, thresh = precision_recall_curve(y_test, preds)
+    
+    def pr_curve(prec, rec):
+        plt.figure()
+        plt.xlim([0.0, 1.01])
+        plt.ylim([0.0, 1.01])
+        plt.plot(prec, rec, label = 'Precision-Recall Curve')
+        plt.xlabel('Precision', fontsize=16)
+        plt.ylabel('Recall', fontsize=16)
+        plt.axes().set_aspect('equal')
+        plt.show()    
+        
+        
+    # What is the recall when the precision is 0.75?
+    pr_curve(prec, rec)
+    rec[prec == 0.75]
+    # 0.825
+    
+    
+    fpr_lr, tpr_lr, _ = roc_curve(y_test, preds)
+    
+    def plot_roc_curve(fpr, tpr):
+        plt.figure()
+        plt.xlim([-0.01, 1.00])
+        plt.ylim([-0.01, 1.00])
+        plt.plot(fpr, tpr, lw=3, label='LogReg ROC curve')
+        plt.xlabel('FPR', fontsize=16)
+        plt.ylabel('TPR', fontsize=16)
+        plt.legend(loc='lower right', fontsize=13)
+        plt.plot([0,1], [0, 1]), color='navy', lw=3, linestyle='--')
+        plt.axes().set_aspect('equal')
+        plt.show()
+
+    
+    plot_roc_curve(fpr_lr, tpr_lr)
+    return (0.825, 0.925)
 
 
 # ### Question 6
 # 
-# Perform a grid search over the parameters listed below for a Logisitic Regression classifier, 
+# Perform a grid search over the parameters listed below for 
+# a Logisitic Regression classifier, 
 # using recall for scoring and the default 3-fold cross validation.
 # 
 # `'penalty': ['l1', 'l2']`
 # 
 # `'C':[0.01, 0.1, 1, 10, 100]`
 # 
-# From `.cv_results_`, create an array of the mean test scores of each parameter combination. i.e.
+# From `.cv_results_`, create an array of the mean 
+# test scores of each parameter
+# combination. i.e.
 # 
 # |      	| `l1` 	| `l2` 	|
 # |:----:	|----	|----	|
@@ -154,9 +225,11 @@ def answer_five():
 # <br>
 # 
 # *This function should return a 5 by 2 numpy array with 10 floats.* 
-# 
-# *Note: do not return a DataFrame, just the values denoted by '?' above in a numpy array. 
-# You might need to reshape your raw result to meet the format we are looking for.*
+#
+# *Note: do not return a DataFrame, just the values denoted by '?' 
+# above in a numpy array. 
+# You might need to reshape your raw result to meet the format we 
+# are looking for.*
 
 # In[ ]:
 
@@ -164,8 +237,24 @@ def answer_six():
     from sklearn.model_selection import GridSearchCV
     from sklearn.linear_model import LogisticRegression
 
-    # Your code here
+    clf = LogisticRegression()
+
+    grid = GridSearchCV(clf, param_grid={'penalty': ['l1', 'l2'], 
+                                        'C':[0.01, 0.1, 1, 10, 100]}, 
+                                        scoring='recall', 
+                                        cv=3)
+                                        
+    grid.fit(X_train, y_train)
     
+    results = grid.cv_results_
+    
+    params = results['params']
+    
+    scores = results['mean_test_score']
+    
+    
+    
+
     return # Return your answer
 
 
