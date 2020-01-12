@@ -252,6 +252,11 @@ def answer_six():
     
     scores = results['mean_test_score']
     
+    for i in range(len(params)): 
+        params[i]['score'] = scores[i]
+
+    
+    pd.DataFrame(
     
     
 
