@@ -25,6 +25,16 @@
 import numpy as np
 import pandas as pd
 
+# Use X_train, X_test, y_train, y_test for all of the following questions
+from sklearn.model_selection import train_test_split
+
+# df = pd.read_csv('readonly/fraud_data.csv')
+df = pd.read_csv('fraud_data.csv')
+
+X = df.iloc[:,:-1]
+y = df.iloc[:,-1]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
 
 # ### Question 1
 # Import the data from `fraud_data.csv`. What percentage of the 
@@ -36,7 +46,8 @@ import pandas as pd
 
 def answer_one():
     
-    df = pd.read_csv('python/fraud_data.csv')
+    # df = pd.read_csv('readonly/fraud_data.csv')
+    df = pd.read_csv('fraud_data.csv')
     counts = df.Class.value_counts()
     ans = counts[1] / sum(counts)
     
@@ -45,15 +56,6 @@ def answer_one():
 
 # In[ ]:
 
-# Use X_train, X_test, y_train, y_test for all of the following questions
-from sklearn.model_selection import train_test_split
-
-df = pd.read_csv('python/fraud_data.csv')
-
-X = df.iloc[:,:-1]
-y = df.iloc[:,-1]
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
 
 
 # ### Question 2
@@ -127,12 +129,12 @@ def answer_four():
     from sklearn.metrics import confusion_matrix
     from sklearn.svm import SVC
 
-    clf = SVC(C=1e9, gamma=1e-07)
+    clf = SVC(C=1e9, gamma=1e-07, random_state=0)
     clf.fit(X_train, y_train)
     preds = clf.decision_function(X_test)
     preds[preds > -220] = 1
     preds[preds < -220] = 0
-    conf_mat = confusion_matrix(y_test, preds[:,1])
+    conf_mat = confusion_matrix(y_test, preds)
     
     return conf_mat
 
@@ -154,7 +156,7 @@ def answer_four():
 # In[ ]:
 
 def answer_five():
-    import matplotlib.pyplot as plt
+    # import matplotlib.pyplot as plt
     from sklearn.linear_model import LogisticRegression
     from sklearn.metrics import precision_recall_curve
     from sklearn.metrics import roc_curve
@@ -164,39 +166,39 @@ def answer_five():
     preds = clf.predict_proba(X_test)[:,1]
     prec, rec, thresh = precision_recall_curve(y_test, preds)
     
-    def pr_curve(prec, rec):
-        plt.figure()
-        plt.xlim([0.0, 1.01])
-        plt.ylim([0.0, 1.01])
-        plt.plot(prec, rec, label = 'Precision-Recall Curve')
-        plt.xlabel('Precision', fontsize=16)
-        plt.ylabel('Recall', fontsize=16)
-        plt.axes().set_aspect('equal')
-        plt.show()    
+    # def pr_curve(prec, rec):
+    #     plt.figure()
+    #     plt.xlim([0.0, 1.01])
+    #     plt.ylim([0.0, 1.01])
+    #     plt.plot(prec, rec, label = 'Precision-Recall Curve')
+    #     plt.xlabel('Precision', fontsize=16)
+    #     plt.ylabel('Recall', fontsize=16)
+    #     plt.axes().set_aspect('equal')
+    #     plt.show()    
         
         
     # What is the recall when the precision is 0.75?
-    pr_curve(prec, rec)
+    # pr_curve(prec, rec)
     rec[prec == 0.75]
     # 0.825
     
     
     fpr_lr, tpr_lr, _ = roc_curve(y_test, preds)
     
-    def plot_roc_curve(fpr, tpr):
-        plt.figure()
-        plt.xlim([-0.01, 1.00])
-        plt.ylim([-0.01, 1.00])
-        plt.plot(fpr, tpr, lw=3, label='LogReg ROC curve')
-        plt.xlabel('FPR', fontsize=16)
-        plt.ylabel('TPR', fontsize=16)
-        plt.legend(loc='lower right', fontsize=13)
-        plt.plot([0,1], [0, 1]), color='navy', lw=3, linestyle='--')
-        plt.axes().set_aspect('equal')
-        plt.show()
+    # def plot_roc_curve(fpr, tpr):
+    #     plt.figure()
+    #     plt.xlim([-0.01, 1.00])
+    #     plt.ylim([-0.01, 1.00])
+    #     plt.plot(fpr, tpr, lw=3, label='LogReg ROC curve')
+    #     plt.xlabel('FPR', fontsize=16)
+    #     plt.ylabel('TPR', fontsize=16)
+    #     plt.legend(loc='lower right', fontsize=13)
+    #     plt.plot([0,1], [0, 1]), color='navy', lw=3, linestyle='--')
+    #     plt.axes().set_aspect('equal')
+    #     plt.show()
 
     
-    plot_roc_curve(fpr_lr, tpr_lr)
+    # plot_roc_curve(fpr_lr, tpr_lr)
     return (0.825, 0.925)
 
 
@@ -237,7 +239,7 @@ def answer_six():
     from sklearn.model_selection import GridSearchCV
     from sklearn.linear_model import LogisticRegression
 
-    clf = LogisticRegression()
+    clf = LogisticRegression(random_state=0)
 
     grid = GridSearchCV(clf, param_grid={'penalty': ['l1', 'l2'], 
                                         'C':[0.01, 0.1, 1, 10, 100]}, 
@@ -247,20 +249,20 @@ def answer_six():
     grid.fit(X_train, y_train)
     
     results = grid.cv_results_
-    
     params = results['params']
-    
     scores = results['mean_test_score']
     
     for i in range(len(params)): 
         params[i]['score'] = scores[i]
 
-    
-    pd.DataFrame(
-    
-    
+    C_vals = [0.01, 0.1, 1, 10, 100]
+    df = pd.DataFrame(index = C_vals, columns=['l1', 'l2'])
 
-    return # Return your answer
+    for param in params:
+        df[param['penalty']][param['C']] = param['score']
+        
+    # return df.to_numpy()
+    return df.values
 
 
 # In[ ]:
