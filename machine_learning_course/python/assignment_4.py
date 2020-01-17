@@ -150,12 +150,97 @@ import numpy as np
 
 def blight_model():
     
-    # Your code here
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.ensemble import GradientBoostingClassifier
+    from sklearn.model_selection import cross_val_score
     
-    return # Your answer here
+    # read in data
+    # df = pd.read_csv('python/train.csv', encoding='cp1252')
+    df = pd.read_csv('train.csv', encoding='cp1252')
+    
+    # filter only cases we care about
+    df = df[np.isfinite(df['compliance'])]
+    
+    # get labels 
+    true = df.compliance.values.astype('int')
+    
+    # form filtered training data 
+    train = pd.DataFrame()
+    
+    # zip code
+    train['zip_code'] = df['zip_code'].astype('category')
+    zip_cats = train['zip_code'].values.categories
+    train['zip_code'] = train['zip_code'].values.codes
+    
+    # agency name
+    train['agency_name'] = df['agency_name'].astype('category')
+    agency_name_cats = train['agency_name'].values.categories
+    train['agency_name'] = train['agency_name'].values.codes
+    
+    # violation code 
+    train['violation_code'] = df['violation_code'].astype('category')
+    violation_code_cats = train['violation_code'].values.categories
+    train['violation_code'] = train['violation_code'].values.codes
+    
+    # violation street name
+    train['violation_street_name'] = df['violation_street_name'].astype('category')
+    violation_street_name_cats = train['violation_street_name'].values.categories
+    train['violation_street_name'] = train['violation_street_name'].values.codes
+    
+    train['fine_amount'] = df['fine_amount'].fillna(0)
+    # train['state_fee'] = df['state_fee'].fillna(0)
+    # train['admin_fee'] = df['admin_fee'].fillna(0)
+    train['judgment_amount'] = df['judgment_amount'].fillna(0)
+    
+    # see how well the model generalizes before fitting with all 
+    # training data 
+    clf = RandomForestClassifier(n_estimators=5000, max_depth=4,
+                                            max_features=4, n_jobs=14)
+                                            
+    # cross_val_score(clf, train, true, cv = 3, scoring='roc_auc', n_jobs=14)
+    
+    # clf = GradientBoostingClassifier(n_estimators=3000, max_depth=6,
+    #                     max_features = 5, learning_rate=0.1, random_state=0)
+        
 
+
+    # fit with all training data before testing
+    clf.fit(train, true)
+     
+    # # now return probabilties for test data
+    # full_test = pd.read_csv('python/train.csv', encoding='cp1252')
+    full_test = pd.read_csv('test.csv', encoding='cp1252')
+
+    test = pd.DataFrame()
+    
+    # zip code 
+    test['zip_code'] = pd.Categorical(full_test['zip_code'].values, 
+                                                categories=zip_cats).codes
+
+    # agency name
+    test['agency_name'] = pd.Categorical(full_test['agency_name'].values, 
+                                            categories=agency_name_cats).codes
+    
+    # violation code 
+    test['violation_code'] = pd.Categorical(full_test['violation_code'].values, 
+                                            categories=violation_code_cats).codes
+    
+    # violation street name
+    test['violation_street_name'] = pd.Categorical(full_test['violation_street_name'].values, 
+                                                    categories = violation_street_name_cats).codes
+    
+    test['fine_amount'] = full_test['fine_amount'].fillna(0)
+    # test['state_fee'] = full_test['state_fee'].fillna(0)
+    # test['admin_fee'] = full_test['admin_fee'].fillna(0)
+    test['judgment_amount'] = full_test['judgment_amount'].fillna(0)
+
+    
+    preds = clf.predict_proba(test)
+    ans = pd.Series(preds[:,1], index=full_test.ticket_id)
+    
+    return ans
 
 # In[ ]:
 
-blight_model()
+# blight_model()
 
